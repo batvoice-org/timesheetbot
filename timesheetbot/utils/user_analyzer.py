@@ -127,7 +127,7 @@ class UserAnalyzer:
         # Notifications can be sent only at configured hours for current user
         current_tz_time = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
         current_tz_hour = current_tz_time.hour
-        user_hour_notif = NotificationHour.objects.filter(user=self.user.pk, timezone_hour=current_tz_hour)
+        user_hour_notif = NotificationHour.objects.filter(user=self.user.pk, timezone_hour=current_tz_hour).first()
         if user_hour_notif is not None:
             # And we send notifications only if there are entries that actually must be filled
             count_missing_data = len(self.find_missing_data())
