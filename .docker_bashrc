@@ -1,0 +1,2 @@
+alias python=/env/bin/python
+source /env/bin/activate
