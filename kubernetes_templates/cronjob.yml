@@ -1,0 +1,72 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: timesheetupdater
+  namespace: default
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            app: timesheetupdater
+          name: timesheetupdater
+        spec:
+          containers:
+          - command:
+            - /env/bin/python
+            args:
+            - /app/timesheetbot/manage.py
+            - perform_hourly_tasks
+            env:            
+            - name: GSPREAD_SHEET
+              value: [MY_SPREADSHEET]
+            - name: GSPREAD_ACCESS_CONF_LOCATION
+              value: /etc/mounted_secrets/client_secret.json
+            - name: HOSTNAME
+              value: timesheet.hosting.call.watch
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres_password
+                  name: timesheetinfos
+            - name: POSTGRES_SERVICE_HOST
+              value: postgres
+            - name: SLACK_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: slack_bearer_token
+                  name: timesheetinfos
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: slack_signing_secret
+                  name: timesheetinfos
+            image: [MY_DOCKER_REPO]/slack-timesheet:0.1
+            imagePullPolicy: IfNotPresent
+            name: timesheetupdater
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /etc/mounted_secrets
+              name: timesheetinfos
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - name: timesheetinfos
+            secret:
+              defaultMode: 0400
+              secretName: timesheetinfos
+  schedule: 23 * * * *
+  successfulJobsHistoryLimit: 0
+  suspend: false
+status:

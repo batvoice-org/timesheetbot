@@ -1,0 +1,33 @@
+#! /bin/bash
+
+# Exit if something fails
+set -e
+
+# Show everything
+set -x
+
+# Set version
+export VERSION=`git describe 2>/dev/null || git rev-parse --short HEAD`
+
+git update-index -q --refresh
+test -z "$(git diff-index --name-only HEAD --)" || {
+  echo "Repository is not clean - exiting"
+  exit 1
+}
+
+# Create temporary sandbox and trap removal at exit
+SANDBOX=`mktemp -d`
+function cleanup {
+  echo "Removing $SANDBOX"
+  rm  -r $SANDBOX
+}
+trap cleanup EXIT
+
+# Release path
+git archive --output=$SANDBOX/release.tar --format=tar HEAD
+tar xf $SANDBOX/release.tar -C $SANDBOX
+rm $SANDBOX/release.tar
+
+# Execute
+(cd $SANDBOX; "$@")
+

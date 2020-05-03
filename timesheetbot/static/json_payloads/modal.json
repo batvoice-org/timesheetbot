@@ -1,0 +1,116 @@
+{
+	"type": "modal",
+	"title": {
+		"type": "plain_text",
+		"text": "Timesheets bot"
+	},
+	"submit": {
+		"type": "plain_text",
+		"text": "Submit"
+	},
+	"close": {
+		"type": "plain_text",
+		"text": "Cancel"
+	},
+	"blocks": [
+		{
+			"type": "input",
+			"block_id": "activity-block",
+			"element": {
+				"type": "plain_text_input",
+				"action_id": "activity-action",
+				"min_length": 3,
+				"max_length": 1023,
+                "initial_value": ""
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "{@time_period@}, I mainly [### for holidays]:"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"block_id": "type-block",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Was that mainly:"
+			},
+			"accessory": {
+				"type": "static_select",
+				"action_id": "type-action",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select an item"
+				},
+				"options": []
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "cir-block",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Was that CIR relevant?"
+			},
+			"accessory": {
+				"type": "static_select",
+				"action_id": "cir-action",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select an item"
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Yep, I did R&D stuff"
+						},
+						"value": "cir-1"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Nope"
+						},
+						"value": "cir-0"
+					}
+				]
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "cii-block",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Was that CII relevant?"
+			},
+			"accessory": {
+				"type": "static_select",
+				"action_id": "cii-action",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select an item"
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Yep, new features/ideas for the product"
+						},
+						"value": "cii-1"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Nope"
+						},
+						"value": "cii-0"
+					}
+				]
+			}
+		}
+	]
+}

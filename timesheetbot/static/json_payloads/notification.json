@@ -1,0 +1,21 @@
+{
+	"text": "Alert - missing timesheet entries",
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hey {@username@}, we lack {@missing_timesheet_count@} timesheet entr{@entry_plural@}, click to fill now..."
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Fill timesheets"
+				},
+				"value": "do_fill",
+				"action_id": "notification-button-click"
+			}
+		}
+	]
+}
