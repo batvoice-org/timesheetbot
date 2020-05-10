@@ -165,11 +165,15 @@ class UserAnalyzer:
     def user_republish_information(self, user_data_object):
         """ When a new entry is complete, publish infos. to the associated public channel if needed """
 
-        # The dedicated hook must exist/be valid
-        if self.user.slack_republish_hook.startswith('http'):
-            # No need to publish anything if holidays
-            if not user_data_object.is_holiday:
-                # Summarizes info. and send through dedicated class
-                text = str(user_data_object.date) + (' morning' if user_data_object.is_morning else ' afternoon') + ' => ' + user_data_object.activities
-                self.query_sender.send_simple_message(text, self.user.slack_republish_hook)
+        # No need to publish anything if holidays
+        if not user_data_object.is_holiday:
+            # Summarizes info. and send through dedicated class
+            text = str(user_data_object.date) + (' morning' if user_data_object.is_morning else ' afternoon') + ' => ' + user_data_object.activities
 
+            # Send to dedicated hook if exists/is valid
+            if self.user.slack_republish_hook.startswith('http'):
+                self.query_sender.send_simple_message(text, hook_url=self.user.slack_republish_hook)
+
+            # Send a copy to personal channel if so configured
+            if self.user.do_send_copy_of_data:
+                self.query_sender.send_simple_message(text, user_slack_id=self.user.slack_userid)

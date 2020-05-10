@@ -14,6 +14,7 @@ SKIP_NOTIFICATIONS_ON_WE: true
 SLACK_BEARER_TOKEN: dummy_slack_token
 SLACK_QUERY_MAX_AGE_SECONDS: 60
 SLACK_SIGNING_SECRET: dummy_slack_signing_secret
+SLACK_CHAT_API_URL: https://slack.com/api/chat.postMessage
 SLACK_VIEW_API_URL: https://slack.com/api/views.open
 TIMESHEET_DEBUG_MODE: false
 WORKING_TIMEZONE: CET

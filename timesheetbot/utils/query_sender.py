@@ -95,12 +95,23 @@ class QuerySender:
         if settings.config['TIMESHEET_DEBUG_MODE']:
             write_query_debug_log(answer, settings.config['SLACK_VIEW_API_URL'], {'trigger_id':trigger_id, 'view': view_data}, final_header)
 
-    def send_simple_message(self, message, hook_url):
+    def send_simple_message(self, message, hook_url=None, user_slack_id=None):
         """ Posting a simple/non-formatted message to a given channel """
 
-        answer = requests.post(hook_url, data=json.dumps({'text': message}), headers=self.default_header)
-        if settings.config['TIMESHEET_DEBUG_MODE']:
-            write_query_debug_log(answer, hook_url, {'text': message}, self.default_header)
+        if hook_url is not None:
+            answer = requests.post(hook_url, data=json.dumps({'text': message}), headers=self.default_header)
+            if settings.config['TIMESHEET_DEBUG_MODE']:
+                write_query_debug_log(answer, hook_url, {'text': message}, self.default_header)
+        elif user_slack_id is not None:
+            # The headers must also include an authorization token for the chats API
+            final_header = self.default_header
+            final_header['Authorization'] = 'Bearer ' + settings.config['SLACK_BEARER_TOKEN']
+
+            message_formatted = {'channel':user_slack_id, 'text':message}
+
+            answer = requests.post(settings.config['SLACK_CHAT_API_URL'], data=json.dumps(message_formatted), headers=final_header)
+            if settings.config['TIMESHEET_DEBUG_MODE']:
+                write_query_debug_log(answer, settings.config['SLACK_CHAT_API_URL'], message_formatted, final_header)
 
     def prepare_and_send_notification(self, user_object, count_missing_entries):
         """ Posting a notification asking to fill missing data to user private channel """
@@ -112,8 +123,13 @@ class QuerySender:
         # Fill infos. that must be personalized
         data_replacement = {'username':user_object.first_name, 'missing_timesheet_count': str(count_missing_entries), 'entry_plural': ('y' if count_missing_entries < 2 else 'ies')}
         notification['blocks'][0]['text']['text'] = template_insert(notification['blocks'][0]['text']['text'], data_replacement)
+        notification['channel'] = user_object.slack_userid
+
+        # The headers must also include an authorization token for the chats API
+        final_header = self.default_header
+        final_header['Authorization'] = 'Bearer ' + settings.config['SLACK_BEARER_TOKEN']
 
         # And post
-        answer = requests.post(user_object.slack_notif_hook, data=json.dumps(notification), headers=self.default_header)
+        answer = requests.post(settings.config['SLACK_CHAT_API_URL'], data=json.dumps(notification), headers=final_header)
         if settings.config['TIMESHEET_DEBUG_MODE']:
-            write_query_debug_log(answer, user_object.slack_notif_hook, notification, self.default_header)
+            write_query_debug_log(answer, settings.config['SLACK_CHAT_API_URL'], notification, final_header)

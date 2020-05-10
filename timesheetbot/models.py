@@ -4,7 +4,7 @@ class User(models.Model):
     first_name = models.CharField(max_length=127, unique=True)
     slack_username = models.CharField(max_length=255, unique=True)
     slack_userid = models.CharField(max_length=15, unique=True)
-    slack_notif_hook = models.CharField(max_length=127, unique=True, blank=False)
+    do_send_copy_of_data = models.BooleanField(null=False, default=True)
     slack_republish_hook = models.CharField(max_length=127, unique=False, blank=True, default='')
     min_hours_between_notifications = models.IntegerField(default=4)
     spreadsheet_row_first_day_of_week = models.IntegerField(unique=True, blank=False, null=False)
