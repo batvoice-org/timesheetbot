@@ -47,7 +47,7 @@ class UserAnalyzer:
         # Current day is special: depending on the time, we might expect morning and/or afternoon
         if date_current.weekday() < 5:
             if self.user.look_for_data_starting_at <= date_current:
-                current_tz_hour = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE)).hour
+                current_tz_hour = datetime.datetime.now(tz=pytz.timezone(self.user.working_timezone)).hour
                 if current_tz_hour >= settings.config['MORNING_ENDS_AT']:
                     needed_data.add(str(date_current) + '_0')
                 if current_tz_hour >= settings.config['AFTERNOON_ENDS_AT']:
@@ -125,7 +125,7 @@ class UserAnalyzer:
         """ Launch notifications inviting user to fill the missing entries """
 
         # Notifications can be sent only at configured hours for current user
-        current_tz_time = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
+        current_tz_time = datetime.datetime.now(tz=pytz.timezone(self.user.working_timezone))
         current_tz_hour = current_tz_time.hour
         user_hour_notif = NotificationHour.objects.filter(user=self.user.pk, timezone_hour=current_tz_hour).first()
         if user_hour_notif is not None:
@@ -159,7 +159,7 @@ class UserAnalyzer:
     def update_user_latest_notification(self):
         """ Updates user last notification timestamp """
 
-        self.user.last_notified = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
+        self.user.last_notified = datetime.datetime.now(tz=pytz.timezone(self.user.working_timezone))
         self.user.save()
 
     def user_republish_information(self, user_data_object):

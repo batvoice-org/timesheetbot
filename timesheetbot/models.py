@@ -10,6 +10,7 @@ class User(models.Model):
     spreadsheet_row_first_day_of_week = models.IntegerField(unique=True, blank=False, null=False)
     look_for_data_starting_at = models.DateField()
     last_notified = models.DateTimeField()
+    working_timezone = models.CharField(max_length=31, unique=False, default='CET')
 
     def __str__(self):
         return "<User: {}>".format(self.slack_username)
