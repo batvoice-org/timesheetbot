@@ -135,7 +135,7 @@ class UserAnalyzer:
                 # We notify only if last notification is old enough according to configuration
                 if ((self.user.last_notified + datetime.timedelta(hours=self.user.min_hours_between_notifications)) <= current_tz_time):
                     # Skip notifications on WE if settings say so
-                    if ((settings.SKIP_NOTIFICATIONS_ON_WE) and (current_tz_time.weekday() >= 5)):
+                    if ((settings.config['SKIP_NOTIFICATIONS_ON_WE']) and (current_tz_time.weekday() >= 5)):
                         return
                     # Relies on dedicated class for the sending & update last notification timestamp
                     self.query_sender.prepare_and_send_notification(self.user, count_missing_data)
