@@ -9,7 +9,12 @@ with open(os.path.join(BASE_DIR, 'default_config.yaml'),'r') as hr:
 
 for config_key in config:
     if config_key in os.environ:
-        config[config_key] = os.environ[config_key]
+        if config_key in set(['AFTERNOON_ENDS_AT', 'MORNING_ENDS_AT', 'POSTGRES_SERVICE_PORT', 'SLACK_QUERY_MAX_AGE_SECONDS']):
+            config[config_key] = int(os.environ[config_key])
+        elif config_key in set(['DJANGO_DEBUG_MODE', 'SKIP_NOTIFICATIONS_ON_WE']):
+            config[config_key] = os.environ[config_key].lower() not in ('','false','0','f')
+        else:
+            config[config_key] = os.environ[config_key]
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config['DJANGO_SECURITY_KEY']
