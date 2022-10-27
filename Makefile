@@ -11,7 +11,7 @@ docker-aws-ecr-login:   ## Apply AWS credentials for the container registry to l
 	aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 367353094751.dkr.ecr.eu-west-1.amazonaws.com
 docker-build:   ## Build a docker image.
 	$(DOCKER_BUILD) -f $(DOCKER_BUILD_FILE) $(DOCKER_BUILD_OPTIONS) -t $(DOCKER_IMAGE):$(VERSION) -t $(DOCKER_IMAGE):latest .
-docker-push: docker-aws-ecr-login ## Push docker image to remote registry.
+docker-push: ## Push docker image to remote registry.
 	$(DOCKER_PUSH) $(DOCKER_PUSH_OPTIONS) $(DOCKER_IMAGE):$(VERSION)
 help:   ## Shows available commands.
 	@echo "Available commands:"

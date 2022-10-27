@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: timesheetbot
+  name: timesheetbot
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: timesheetbot
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 100%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: timesheetbot
+    spec:
+      containers:
+      - name: timesheetbot
+        image: 367353094751.dkr.ecr.eu-west-1.amazonaws.com/timesheetbot:{{ .Values.docker.tag }}
+        env:
+        {{- range $k, $v := .Values.env }}
+        - name: {{ $k }}
+          value: {{ $v | quote -}}
+        {{- end }}
+        - name: HOSTNAME
+          value: {{ .Values.ingress.host }}
+        - name: GSPREAD_ACCESS_CONF_LOCATION
+          value: /etc/mounted_secrets/client_secret.json
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/mounted_secrets
+          name: timesheetbot
+      volumes:
+      - name: timesheetbot
+        secret:
+          defaultMode: 292
+          secretName: timesheetbot
+      nodeSelector:
+        role: worker
+      tolerations:
+      - effect: NoSchedule
+        key: instancetype
+        value: worker

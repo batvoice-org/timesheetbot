@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: timesheetbot
+  labels:
+    name: timesheetbot
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-http01
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: timesheetbot-tls
+      hosts:
+      - timesheetbot.batvoice.ai
+  rules:
+  - host: timesheetbot.batvoice.ai
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: timesheetbot
+            port: 
+              number: 80
