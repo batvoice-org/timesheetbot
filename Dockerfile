@@ -46,7 +46,7 @@ RUN mkdir -p /app /env
 
 # System packages
 RUN apt-get update
-RUN apt-get dist-upgrade
+RUN apt-get dist-upgrade -y
 RUN apt-get install -y libpq5
 RUN apt-get autoremove --purge
 RUN apt-get clean
