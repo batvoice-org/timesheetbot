@@ -4,10 +4,57 @@ Slack agent to prompt users for timesheets / automatically fill CIR-CII sheets
 
 ## Requirements
 
-- Docker and docker-compose
 - Have admin rights to a Slack App
 - Have a GCP projet configured
   - Create a service account to edit a GSheet programatically
+
+## Development
+
+### Requirements
+
+- Docker and docker-compose
+- Python3.10
+
+### Launch development server
+
+- Create de virtual environment
+
+```
+python -m venv env
+source env/bin/activate
+```
+
+- Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+- Create docker external volume
+
+```
+docker volume create timesheetbot_pgdata
+```
+
+- Launch docker-compose 
+
+```
+docker compose up
+```
+
+- In a new terminal session, launch Django migration to setup database
+
+```
+python timesheetbot/manage.py migrate
+```
+
+- Launch Django development server
+
+```
+python timesheetbot/manage.py runserver
+```
+
+Development server will be reachable at http://127.0.0.1:8000/
 
 ## Build / deploy
 
@@ -25,12 +72,12 @@ Now, you must create a `values.yaml` file to override the default configuration 
 Then use `helm` to deploy to a Kubernetes cluster:
 ```bash
 helm upgrade \
---install \
---wait \
---atomic \
--f {PATH_TO_MY_SECRET_VALUES.yaml} \
-timesheetbot
-helm-chart/timesheetbot
+  --install \
+  --wait \
+  --atomic \
+  -f {PATH_TO_MY_SECRET_VALUES.yaml} \
+  timesheetbot
+  helm-chart/timesheetbot
 ```
 
 ## How to add / setup a new employee ?

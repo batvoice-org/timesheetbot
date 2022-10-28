@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
@@ -8,6 +8,6 @@ from timesheetbot.utils.slack_query_handler import handle_slack
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^favicon\.ico$',RedirectView.as_view(url='/static/images/favicon.ico')),
-    url(r'^slack$', handle_slack),
+    re_path(r'^favicon\.ico$',RedirectView.as_view(url='/static/images/favicon.ico')),
+    re_path(r'^slack$', handle_slack),
 ]

@@ -1,17 +1,17 @@
 version: '3'
 
 volumes:
-  batvoice_cir_pgdata:
+  timesheetbot_pgdata:
     external: true
 
 services:
   postgres:
-    image: postgres:10-alpine
+    image: postgres:alpine
     environment:
-      - POSTGRES_PASSWORD=cir_default_root_password
-    network_mode:
-      host
+      POSTGRES_DB: timesheetbot
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
     ports:
       - 5432:5432
     volumes:
-      - batvoice_cir_pgdata:/var/lib/postgresql/data
+      - timesheetbot_pgdata:/var/lib/postgresql/data

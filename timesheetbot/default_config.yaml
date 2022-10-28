@@ -1,20 +1,20 @@
 AFTERNOON_ENDS_AT: 19
-DJANGO_DEBUG_MODE: false
+DJANGO_DEBUG_MODE: true
 DJANGO_SECURITY_KEY: dd48w8!+ih^%drjg3*bk0b^y_m*sxc4gs@xg81tdtn3m^bu3op
 GSPREAD_SHEET:
 GSPREAD_ACCESS_CONF_LOCATION: /etc/gspread_client_secret.json
-HOSTNAME: timesheet.my.domain
+HOSTNAME: localhost
 MORNING_ENDS_AT: 13
-POSTGRES_NAME: timesheets
-POSTGRES_PASSWORD: dummy_db_pass
+POSTGRES_NAME: timesheetbot
+POSTGRES_PASSWORD: dev
 POSTGRES_SERVICE_HOST: localhost
 POSTGRES_SERVICE_PORT: 5432
-POSTGRES_USER: timesheet_user
+POSTGRES_USER: dev
 SKIP_NOTIFICATIONS_ON_WE: true
 SLACK_BEARER_TOKEN: dummy_slack_token
 SLACK_QUERY_MAX_AGE_SECONDS: 60
 SLACK_SIGNING_SECRET: dummy_slack_signing_secret
 SLACK_CHAT_API_URL: https://slack.com/api/chat.postMessage
 SLACK_VIEW_API_URL: https://slack.com/api/views.open
-TIMESHEET_DEBUG_MODE: false
+TIMESHEET_DEBUG_MODE: true
 WORKING_TIMEZONE: CET

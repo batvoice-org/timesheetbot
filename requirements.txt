@@ -1,8 +1,8 @@
-Django~=2.2
-psycopg2~=2.8
-whitenoise~=5.0
-pyyaml~=5.3
-gspread~=3.5
-oauth2client~=4.1
-gspread-formatting~=0.2
-gunicorn~=20.0
+Django>=4
+psycopg2>=2
+whitenoise>=6
+pyyaml>=6
+gspread>=5
+oauth2client>=4
+gspread-formatting>=1
+gunicorn>=20

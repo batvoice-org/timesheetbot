@@ -16,5 +16,14 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
-    install_requires=['Django >= 2.0', 'psycopg2 >= 2.0', 'whitenoise >= 5.0', 'pyyaml >= 5.0', 'gspread >= 3.0', 'oauth2client >= 4.0', 'gspread-formatting', 'gunicorn >= 20.0']
+    install_requires=[
+        'Django >= 4',
+        'psycopg2 >= 2',
+        'whitenoise >= 6',
+        'pyyaml >= 6',
+        'gspread >= 5',
+        'oauth2client >= 4',
+        'gspread-formatting >= 1',
+        'gunicorn >= 20'
+    ]
 )
