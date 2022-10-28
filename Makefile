@@ -13,6 +13,7 @@ docker-build:   ## Build a docker image.
 	$(DOCKER_BUILD) -f $(DOCKER_BUILD_FILE) $(DOCKER_BUILD_OPTIONS) -t $(DOCKER_IMAGE):$(VERSION) -t $(DOCKER_IMAGE):latest .
 docker-push: ## Push docker image to remote registry.
 	$(DOCKER_PUSH) $(DOCKER_PUSH_OPTIONS) $(DOCKER_IMAGE):$(VERSION)
+	$(DOCKER_PUSH) $(DOCKER_PUSH_OPTIONS) $(DOCKER_IMAGE):latest
 help:   ## Shows available commands.
 	@echo "Available commands:"
 	@echo

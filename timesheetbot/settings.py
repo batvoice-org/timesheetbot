@@ -22,7 +22,17 @@ SECRET_KEY = config['DJANGO_SECURITY_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config['DJANGO_DEBUG_MODE']
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1',config['HOSTNAME']]
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    config['HOSTNAME'],
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://127.0.0.1',
+    f'https://{config["HOSTNAME"]}',
+]
 
 # Application definition
 INSTALLED_APPS = [

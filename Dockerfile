@@ -61,10 +61,6 @@ COPY prod_launch_web_interface.sh /app/starter.sh
 
 WORKDIR /app
 
-ARG IMAGE
-ARG TAG
-ENV IMAGE=${IMAGE:-batvoice} \
-    TAG=${TAG:-dev}
 ENV DJANGO_SETTINGS_MODULE=timesheetbot.settings
 
 USER app
