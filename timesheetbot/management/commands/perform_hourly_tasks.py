@@ -6,16 +6,16 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    """ Django command interface class """
+    """Django command interface class"""
 
-    help = 'Regularly performs notification/writing tasks'
+    help = "Regularly performs notification/writing tasks"
 
     def handle(self, *args, **options):
-        """ Entrypoint when launched """
+        """Entrypoint when launched"""
 
         # For each user: sends notifications if needed, updates analysis startpoint if needed
-        for one_user in User.objects.values('pk').all():
-            user_analyzer = UserAnalyzer(one_user['pk'])
+        for one_user in User.objects.values("pk").all():
+            user_analyzer = UserAnalyzer(one_user["pk"])
             user_analyzer.launch_notifications()
             user_analyzer.update_user_analysis_mindate()
 

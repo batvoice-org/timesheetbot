@@ -2,7 +2,7 @@
 	"type": "modal",
 	"title": {
 		"type": "plain_text",
-		"text": "Timesheets bot"
+		"text": "Timesheets bot V2"
 	},
 	"submit": {
 		"type": "plain_text",
@@ -21,11 +21,11 @@
 				"action_id": "activity-action",
 				"min_length": 3,
 				"max_length": 1023,
-                "initial_value": ""
+				"initial_value": ""
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "{@time_period@}, I mainly [### for holidays]:"
+				"text": "{@time_period@}, I mainly did [### for holidays]:"
 			}
 		},
 		{
@@ -53,64 +53,42 @@
 			"block_id": "cir-block",
 			"text": {
 				"type": "mrkdwn",
-				"text": "Was that CIR relevant?"
+				"text": "Can it be part of a program ?"
 			},
 			"accessory": {
-				"type": "static_select",
-				"action_id": "cir-action",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select an item"
-				},
+				"type": "radio_buttons",
+				"action_id": "program-action",
 				"options": [
 					{
 						"text": {
-							"type": "plain_text",
-							"text": "Yep, I did R&D stuff"
+							"type": "mrkdwn",
+							"text": "CIR: _R&D activities_"
 						},
-						"value": "cir-1"
+						"value": "cir"
 					},
 					{
 						"text": {
-							"type": "plain_text",
-							"text": "Nope"
+							"type": "mrkdwn",
+							"text": "CII: _new features/ideas for the product_"
 						},
-						"value": "cir-0"
+						"value": "cii"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "Other BPI projects (Aqua ...)"
+						},
+						"value": "bpi"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "No"
+						},
+						"value": "no"
 					}
 				]
 			}
 		},
-		{
-			"type": "section",
-			"block_id": "cii-block",
-			"text": {
-				"type": "mrkdwn",
-				"text": "Was that CII relevant?"
-			},
-			"accessory": {
-				"type": "static_select",
-				"action_id": "cii-action",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select an item"
-				},
-				"options": [
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Yep, new features/ideas for the product"
-						},
-						"value": "cii-1"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Nope"
-						},
-						"value": "cii-0"
-					}
-				]
-			}
-		}
 	]
 }

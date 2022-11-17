@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('timesheetbot', '0004_auto_20200510_1647'),
+        ("timesheetbot", "0004_auto_20200510_1647"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='timeentry',
-            name='is_cii',
+            model_name="timeentry",
+            name="is_cii",
             field=models.BooleanField(default=False, null=True),
         ),
         migrations.AlterField(
-            model_name='timeentry',
-            name='is_cir',
+            model_name="timeentry",
+            name="is_cir",
             field=models.BooleanField(default=False, null=True),
         ),
     ]

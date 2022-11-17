@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('timesheetbot', '0001_initial'),
+        ("timesheetbot", "0001_initial"),
     ]
 
     operations = [
@@ -16,5 +16,5 @@ class Migration(migrations.Migration):
                 ('type-etude', 'Writing specs/battle plan/reading papers?', 'etude', True),
                 ('type-operations', '(Sys)admin stuff/preparing experiments?', 'operations', True),
                 ('type-holidays', ' -- ', 'holidays', False);"""
-      ),
+        ),
     ]

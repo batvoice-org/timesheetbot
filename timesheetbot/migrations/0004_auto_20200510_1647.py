@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('timesheetbot', '0003_auto_20200508_2043'),
+        ("timesheetbot", "0003_auto_20200508_2043"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='slack_notif_hook',
+            model_name="user",
+            name="slack_notif_hook",
         ),
         migrations.AddField(
-            model_name='user',
-            name='do_send_copy_of_data',
+            model_name="user",
+            name="do_send_copy_of_data",
             field=models.BooleanField(default=True),
         ),
     ]

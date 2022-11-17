@@ -8,65 +8,120 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=127, unique=True)),
-                ('slack_username', models.CharField(max_length=255, unique=True)),
-                ('slack_userid', models.CharField(max_length=15, unique=True)),
-                ('slack_notif_hook', models.CharField(max_length=127, unique=True)),
-                ('slack_republish_hook', models.CharField(blank=True, default='', max_length=127, unique=True)),
-                ('min_hours_between_notifications', models.IntegerField(default=4)),
-                ('spreadsheet_row_first_day_of_week', models.IntegerField(unique=True)),
-                ('look_for_data_starting_at', models.DateField()),
-                ('last_notified', models.DateTimeField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=127, unique=True)),
+                ("slack_username", models.CharField(max_length=255, unique=True)),
+                ("slack_userid", models.CharField(max_length=15, unique=True)),
+                ("slack_notif_hook", models.CharField(max_length=127, unique=True)),
+                (
+                    "slack_republish_hook",
+                    models.CharField(
+                        blank=True, default="", max_length=127, unique=True
+                    ),
+                ),
+                ("min_hours_between_notifications", models.IntegerField(default=4)),
+                ("spreadsheet_row_first_day_of_week", models.IntegerField(unique=True)),
+                ("look_for_data_starting_at", models.DateField()),
+                ("last_notified", models.DateTimeField()),
             ],
         ),
         migrations.CreateModel(
-            name='WorkType',
+            name="WorkType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slack_value', models.CharField(max_length=15, unique=True)),
-                ('slack_description', models.CharField(max_length=63, unique=True)),
-                ('spreadsheet_value', models.CharField(max_length=15, unique=True)),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("slack_value", models.CharField(max_length=15, unique=True)),
+                ("slack_description", models.CharField(max_length=63, unique=True)),
+                ("spreadsheet_value", models.CharField(max_length=15, unique=True)),
+                ("is_active", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='TimeEntry',
+            name="TimeEntry",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('activities', models.CharField(blank=True, max_length=1023)),
-                ('date', models.DateField()),
-                ('is_morning', models.BooleanField()),
-                ('is_afternoon', models.BooleanField()),
-                ('is_cir', models.BooleanField(null=True)),
-                ('is_cii', models.BooleanField(null=True)),
-                ('is_holiday', models.BooleanField(default=False)),
-                ('creation_time', models.DateTimeField(auto_now_add=True)),
-                ('modification_time', models.DateTimeField(auto_now=True)),
-                ('has_been_written_in_gsheet', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='timesheetbot.User')),
-                ('work_type', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='timesheetbot.WorkType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("activities", models.CharField(blank=True, max_length=1023)),
+                ("date", models.DateField()),
+                ("is_morning", models.BooleanField()),
+                ("is_afternoon", models.BooleanField()),
+                ("is_cir", models.BooleanField(null=True)),
+                ("is_cii", models.BooleanField(null=True)),
+                ("is_holiday", models.BooleanField(default=False)),
+                ("creation_time", models.DateTimeField(auto_now_add=True)),
+                ("modification_time", models.DateTimeField(auto_now=True)),
+                ("has_been_written_in_gsheet", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="timesheetbot.User",
+                    ),
+                ),
+                (
+                    "work_type",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="timesheetbot.WorkType",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'date', 'is_morning')},
+                "unique_together": {("user", "date", "is_morning")},
             },
         ),
         migrations.CreateModel(
-            name='NotificationHour',
+            name="NotificationHour",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timezone_hour', models.IntegerField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='timesheetbot.User')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timezone_hour", models.IntegerField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="timesheetbot.User",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'timezone_hour')},
+                "unique_together": {("user", "timezone_hour")},
             },
         ),
     ]

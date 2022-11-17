@@ -5,7 +5,7 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "Hey {@username@}, we lack {@missing_timesheet_count@} timesheet entr{@entry_plural@}, click to fill now..."
+				"text": "Hey {@username@} :wave: {@missing_timesheet_count@} timesheet entr{@entry_plural@} {@verb_plural@} missing, click to fill now..."
 			},
 			"accessory": {
 				"type": "button",
