@@ -54,13 +54,10 @@ def format_date(date_string):
     date_body = date_string.split("_")[0]
     date_object = datetime.date(*[int(part) for part in date_body.split("-")])
 
-    return (
-        days_names[date_object.weekday()]
-        + " "
-        + date_body
-        + (", morning" if date_string.endswith("_0") else ", afternoon")
-    )
+    day_name = days_names[date_object.weekday()]
+    day_period = "morning" if date_string.endswith("_0") else "afternoon"
 
+    return f'{day_name} {day_period} ({date_body})'
 
 def build_activity_type_options():
     """Builds a slack-compatible dict representation of known work types"""
@@ -100,7 +97,7 @@ class QuerySender:
 
         # Loads the template
         with open(
-            os.path.join(settings.STATIC_ROOT, "json_payloads", "modal.json"), "r"
+            os.path.join(settings.STATIC_ROOT, "json_payloads", "modal_v2.json"), "r"
         ) as hr:
             view_data = json.load(hr)
 
@@ -115,37 +112,13 @@ class QuerySender:
 
         # Fill the template
         view_data["blocks"][0]["element"]["initial_value"] = (
-            user_data_object.activities if user_data_object is not None else ""
+            user_data_object.descripiton if user_data_object is not None else ""
         )
         view_data["blocks"][0]["label"]["text"] = template_insert(
             view_data["blocks"][0]["label"]["text"],
             {"time_period": format_date(date_repr)},
         )
-        view_data["blocks"][2]["accessory"]["options"] = build_activity_type_options()
-
-        # Prepare the pre-selected options if some date had already been filled
-        if user_data_object is not None:
-            if user_data_object.work_type is not None:
-                view_data["blocks"][2]["accessory"][
-                    "initial_option"
-                ] = get_option_for_key(
-                    view_data["blocks"][2]["accessory"]["options"],
-                    user_data_object.work_type.slack_value,
-                )
-            if user_data_object.is_cir is not None:
-                view_data["blocks"][3]["accessory"][
-                    "initial_option"
-                ] = get_option_for_key(
-                    view_data["blocks"][3]["accessory"]["options"],
-                    "cir-1" if user_data_object.is_cir else "cir-0",
-                )
-            if user_data_object.is_cii is not None:
-                view_data["blocks"][4]["accessory"][
-                    "initial_option"
-                ] = get_option_for_key(
-                    view_data["blocks"][4]["accessory"]["options"],
-                    "cii-1" if user_data_object.is_cii else "cii-0",
-                )
+        view_data["blocks"][2]["element"]["options"] = build_activity_type_options()
 
         # The headers must also include an authorization token for the views API
         final_header = self.default_header

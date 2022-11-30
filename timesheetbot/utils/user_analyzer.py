@@ -67,14 +67,13 @@ class UserAnalyzer:
         for one_data in TimeEntry.objects.filter(
             user=self.user.pk,
             date__gte=self.user.look_for_data_starting_at,
-            is_cir__isnull=False,
-            is_cii__isnull=False,
+            program__isnull=False,
             work_type__isnull=False,
-        ).values("activities", "date", "is_morning", "is_holiday"):
+        ).values("description", "date", "is_morning"):
             # A data point is not valid if
             # - no activity & not holiday
             # - no infos. on CIR, CII or work type [already filtered at query level]
-            if (len(one_data["activities"]) <= 2) and (not one_data["is_holiday"]):
+            if (len(one_data["description"]) <= 2):
                 continue
 
             # But if all that is available, data can ineed be considered as available
@@ -87,66 +86,31 @@ class UserAnalyzer:
         """New infos. have been sent; let's store those new infos"""
 
         # Retrieve the data for user/timeslot or create if necessary
-        user_data_object = TimeEntry.objects.filter(
+        time_entry = TimeEntry.objects.filter(
             user=self.user,
             date=date_object["date"],
             is_morning=date_object["is_morning"],
             is_afternoon=date_object["is_afternoon"],
         ).first()
-        if user_data_object is None:
-            user_data_object = TimeEntry(
+        if time_entry is None:
+            time_entry = TimeEntry(
                 user=self.user,
-                activities="",
+                description="",
                 date=date_object["date"],
                 is_morning=date_object["is_morning"],
                 is_afternoon=date_object["is_afternoon"],
             )
-            user_data_object.save()
+            time_entry.save()
 
         # Form has been sent, hence we expect new infos. about activity description
         if change_type == "submit":
-            user_activity = change_dict["activity-block"]["activity-action"]["value"]
-            # Special case that means holidays vs. classical description
-            if user_activity.strip() == "###":
-                user_data_object.activities = ""
-                user_data_object.is_holiday = True
-                user_data_object.is_cir = False
-                user_data_object.is_cii = False
-                user_data_object.work_type = WorkType.objects.filter(
-                    slack_value="type-holidays"
-                ).first()
-            else:
-                user_data_object.activities = user_activity.strip()
-                user_data_object.is_holiday = False
-        elif change_type == "select":
-            # Here, a select menu has changed, corresponding to CIR/CII/activity type
-            concerned_type = change_dict["action_id"]
-            final_value = change_dict["selected_option"]["value"]
-            if concerned_type == "cii-action":
-                user_data_object.is_cii = final_value.endswith("-1")
-            elif concerned_type == "cir-action":
-                user_data_object.is_cir = final_value.endswith("-1")
-            elif concerned_type == "type-action":
-                user_data_object.work_type = WorkType.objects.filter(
-                    is_active=True, slack_value=final_value
-                ).first()
+            description = change_dict["description-block"]["description-action"]["value"]
+            time_entry.descripiton = description.strip()
 
-        user_data_object.save()
-
-        # Data has been modified. If data is now complete...
-        if (len(user_data_object.activities) <= 2) and (
-            not user_data_object.is_holiday
-        ):
-            return
-        if user_data_object.is_cir is None:
-            return
-        if user_data_object.is_cii is None:
-            return
-        if user_data_object.work_type is None:
-            return
+        time_entry.save()
 
         # We might publish that new piece of information in dedicated slack channel
-        self.user_republish_information(user_data_object)
+        self.user_republish_information(time_entry)
 
     def launch_notifications(self):
         """Launch notifications inviting user to fill the missing entries"""
@@ -206,27 +170,22 @@ class UserAnalyzer:
         )
         self.user.save()
 
-    def user_republish_information(self, user_data_object):
+    def user_republish_information(self, time_entry: TimeEntry):
         """When a new entry is complete, publish infos. to the associated public channel if needed"""
 
-        # No need to publish anything if holidays
-        if not user_data_object.is_holiday:
-            # Summarizes info. and send through dedicated class
-            text = (
-                str(user_data_object.date)
-                + (" morning" if user_data_object.is_morning else " afternoon")
-                + " => "
-                + user_data_object.activities
+        # Summarizes info. and send through dedicated class
+        date = str(time_entry.date) + " morning" if time_entry.is_morning else " afternoon"
+
+        text = f'*{date}* :\n- _Work type_ : {time_entry.work_type.slack_description}\n- _Program_ : {time_entry.program.slack_description}\n- _Description_ : {time_entry.description}'
+
+        # Send to dedicated hook if exists/is valid
+        if self.user.slack_republish_hook.startswith("http"):
+            self.query_sender.send_simple_message(
+                text, hook_url=self.user.slack_republish_hook
             )
 
-            # Send to dedicated hook if exists/is valid
-            if self.user.slack_republish_hook.startswith("http"):
-                self.query_sender.send_simple_message(
-                    text, hook_url=self.user.slack_republish_hook
-                )
-
-            # Send a copy to personal channel if so configured
-            if self.user.do_send_copy_of_data:
-                self.query_sender.send_simple_message(
-                    text, user_slack_id=self.user.slack_userid
-                )
+        # Send a copy to personal channel if so configured
+        if self.user.do_send_copy_of_data:
+            self.query_sender.send_simple_message(
+                text, user_slack_id=self.user.slack_userid
+            )

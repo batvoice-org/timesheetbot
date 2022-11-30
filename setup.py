@@ -24,6 +24,7 @@ setuptools.setup(
         'gspread >= 5',
         'oauth2client >= 4',
         'gspread-formatting >= 1',
-        'gunicorn >= 20'
+        'gunicorn >= 20',
+        'pytz >= 2022'
     ]
 )

@@ -3,3 +3,5 @@ env/
 __pycache__/
 timesheetbot/static/admin
 timesheetbot.egg-info/
+.env
+.DS_STORE

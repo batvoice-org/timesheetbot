@@ -1,25 +1,39 @@
 import datetime
 import json
+import re
 
 from timesheetbot.models import User
 from timesheetbot.utils.user_analyzer import UserAnalyzer
 
 
-def parse_modal_date(date_as_text):
+def parse_modal_date(date_as_text: str):
     """Parses date as displayed in modals to get a datetime object + morning/afternoon info."""
 
+    # Morning | afternoon check
+    if "morning" in date_as_text.lower():
+        day_period = "morning"
+    elif "afternoon" in date_as_text.lower():
+        day_period = "afternoon"
+    else:
+        raise ValueError("morning|afternoon is not present in the string")
+
+    # Compute date
+    matches = re.search(r"(\d{4})-(\d{2})-(\d{2})", date_as_text)
+    if len(matches.groups()) == 3:
+        year = int(matches[1])
+        month = int(matches[2])
+        day = int(matches[3])
+    else:
+        raise ValueError("No date found in the text.")
+
     day_period = date_as_text.split(",")[1].strip()
-    date_splitted = [
-        int(part)
-        for part in date_as_text.split(",")[0].strip().split(" ")[1].strip().split("-")
-    ]
+    date = datetime.date(year, month, day)
 
     return {
-        "date": datetime.date(date_splitted[0], date_splitted[1], date_splitted[2]),
+        "date": date,
         "is_morning": (day_period == "morning"),
         "is_afternoon": (day_period == "afternoon"),
     }
-
 
 class SlackAnalyzer:
     """Parser for Slack request"""

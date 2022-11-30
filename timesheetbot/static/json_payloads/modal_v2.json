@@ -1,0 +1,120 @@
+{
+	"type": "modal",
+	"title": {
+		"type": "plain_text",
+		"text": "TimesheetsBot V2"
+	},
+	"submit": {
+		"type": "plain_text",
+		"text": "Submit"
+	},
+	"close": {
+		"type": "plain_text",
+		"text": "Cancel"
+	},
+	"blocks": [
+		{
+			"type": "input",
+			"block_id": "description-block",
+			"element": {
+				"type": "plain_text_input",
+				"multiline": true,
+				"action_id": "description-action",
+				"initial_value": ""
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "{@time_period@}, I mainly did:",
+				"emoji": true
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "input",
+			"element": {
+				"type": "static_select",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select an item",
+					"emoji": true
+				},
+				"options": [
+				],
+				"action_id": "work-type-action"
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "What was the work type ?",
+				"emoji": true
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"block_id": "program-block",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Can it be part of the following programs ?*"
+			},
+			"accessory": {
+				"type": "radio_buttons",
+				"action_id": "program-action",
+				"options": [
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*CIR*: _R&D activities_"
+						},
+						"value": "cir"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*CII*: _new features/ideas for the product_"
+						},
+						"value": "cii"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*Project 1*: _Aqua_"
+						},
+						"value": "project_1"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "~*Project 2*: :soon:~"
+						},
+						"value": "project_2"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*Sick day* :face_with_thermometer: "
+						},
+						"value": "sick"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "*Holiday* :palm_tree:"
+						},
+						"value": "holiday"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "_None of them_"
+						},
+						"value": "none"
+					}
+				]
+			}
+		}
+	]
+}

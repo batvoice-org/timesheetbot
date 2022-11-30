@@ -1,11 +1,11 @@
 {
-	"text": "Alert - missing timesheet entries",
+	"text": "It's time to fill out your missing timesheet entries !",
 	"blocks": [
 		{
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "Hey {@username@} :wave: {@missing_timesheet_count@} timesheet entr{@entry_plural@} {@verb_plural@} missing, click to fill now..."
+				"text": "Hello {@username@} :wave:\n*{@missing_timesheet_count@} timesheet entr{@entry_plural@}* {@verb_plural@} missing, it would be absolutely awesome if you could fill out the form :thankyou:"
 			},
 			"accessory": {
 				"type": "button",
@@ -14,6 +14,7 @@
 					"text": "Fill timesheets"
 				},
 				"value": "do_fill",
+				"style": "primary",
 				"action_id": "notification-button-click"
 			}
 		}

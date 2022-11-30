@@ -37,6 +37,7 @@ DEBUG = config["DJANGO_DEBUG_MODE"]
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    ".ngrok.io",
     config["HOSTNAME"],
 ]
 

@@ -30,16 +30,22 @@ class WorkType(models.Model):
     def __str__(self):
         return "<WorkType: {}>".format(self.spreadsheet_value)
 
+class Program(models.Model):
+    slack_value = models.CharField(max_length=15, unique=True)
+    slack_description = models.CharField(max_length=63, unique=True)
+    spreadsheet_value = models.CharField(max_length=15, unique=True)
+    is_active = models.BooleanField(null=False, default=True)
+
+    def __str__(self):
+        return "<Program: {}>".format(self.spreadsheet_value)
 
 class TimeEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    activities = models.CharField(max_length=1023, blank=True, null=False)
+    description = models.CharField(max_length=1023, blank=True, null=False)
     date = models.DateField(blank=False, null=False)
     is_morning = models.BooleanField(null=False)
     is_afternoon = models.BooleanField(null=False)
-    is_cir = models.BooleanField(null=True, default=False)
-    is_cii = models.BooleanField(null=True, default=False)
-    is_holiday = models.BooleanField(default=False, null=False)
+    program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True)
     work_type = models.ForeignKey(WorkType, on_delete=models.SET_NULL, null=True)
     creation_time = models.DateTimeField(auto_now_add=True, blank=False, null=False)
     modification_time = models.DateTimeField(auto_now=True, blank=False, null=False)
@@ -58,7 +64,6 @@ class TimeEntry(models.Model):
             + ("morning" if self.is_morning else "afternoon")
             + ">"
         )
-
 
 class NotificationHour(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

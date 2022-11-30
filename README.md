@@ -27,7 +27,9 @@ source env/bin/activate
 - Install dependencies
 
 ```
+python setup.py install
 pip install -r requirements.txt
+pip install -e .
 ```
 
 - Create docker external volume

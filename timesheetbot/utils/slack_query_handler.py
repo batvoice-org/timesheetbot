@@ -36,8 +36,8 @@ def launch_independent_async_handling_process(data):
                 "--request_file",
                 file_path,
             ],
-            stdout=sys_descr_stdout,
-            stderr=sys_descr_stderr,
+            stdout=sys.stdout,
+            stderr=sys.stdout
         )
     else:
         subprocess.Popen(
