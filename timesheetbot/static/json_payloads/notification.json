@@ -5,7 +5,7 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "Hello {@username@} :wave:\n*{@missing_timesheet_count@} timesheet entr{@entry_plural@}* {@verb_plural@} missing, it would be absolutely awesome if you could fill out the form :thankyou:"
+				"text": "Hello {@username@} :wave:\n*{@missing_timesheet_count@} timesheet entr{@entry_plural@}* {@verb_plural@} missing, it would be absolutely _awesome_ if you could fill out the form !\n:thankyou:"
 			},
 			"accessory": {
 				"type": "button",

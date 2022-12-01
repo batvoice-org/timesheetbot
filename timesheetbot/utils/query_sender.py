@@ -6,7 +6,7 @@ import tempfile
 import time
 import timesheetbot.settings as settings
 
-from timesheetbot.models import TimeEntry, WorkType
+from timesheetbot.models import TimeEntry, WorkType, Program
 
 
 def write_query_debug_log(answer, url, data, headers):
@@ -57,23 +57,41 @@ def format_date(date_string):
     day_name = days_names[date_object.weekday()]
     day_period = "morning" if date_string.endswith("_0") else "afternoon"
 
-    return f'{day_name} {day_period} ({date_body})'
+    return f"{day_name} {day_period} ({date_body})"
 
-def build_activity_type_options():
-    """Builds a slack-compatible dict representation of known work types"""
 
-    activities_list = []
-    for one_activity in WorkType.objects.filter(is_active=True).order_by(
-        "slack_description"
-    ):
-        activities_list.append(
+def build_program_options():
+    """Builds a slack-compatible dict representation of known programs"""
+    program_list = []
+    for program in Program.objects.filter(is_active=True).order_by("slack_description"):
+        program_list.append(
             {
-                "text": {"type": "plain_text", "text": one_activity.slack_description},
-                "value": one_activity.slack_value,
+                "text": {"type": "mrkdwn", "text": program.slack_description[:75]},
+                "value": program.slack_value,
             }
         )
 
-    return activities_list
+    return program_list
+
+
+def build_work_type_options():
+    """Builds a slack-compatible dict representation of known work types"""
+
+    work_type_list = []
+    for work_type in WorkType.objects.filter(is_active=True).order_by(
+        "slack_description"
+    ):
+        work_type_list.append(
+            {
+                "text": {
+                    "type": "plain_text",
+                    "text": work_type.slack_description[:75],
+                },
+                "value": work_type.slack_value,
+            }
+        )
+
+    return work_type_list
 
 
 def get_option_for_key(options, key):
@@ -97,7 +115,7 @@ class QuerySender:
 
         # Loads the template
         with open(
-            os.path.join(settings.STATIC_ROOT, "json_payloads", "modal_v2.json"), "r"
+            os.path.join(settings.STATIC_ROOT, "json_payloads", "modal.json"), "r"
         ) as hr:
             view_data = json.load(hr)
 
@@ -112,13 +130,14 @@ class QuerySender:
 
         # Fill the template
         view_data["blocks"][0]["element"]["initial_value"] = (
-            user_data_object.descripiton if user_data_object is not None else ""
+            user_data_object.description if user_data_object is not None else ""
         )
         view_data["blocks"][0]["label"]["text"] = template_insert(
             view_data["blocks"][0]["label"]["text"],
             {"time_period": format_date(date_repr)},
         )
-        view_data["blocks"][2]["element"]["options"] = build_activity_type_options()
+        view_data["blocks"][2]["element"]["options"] = build_work_type_options()
+        view_data["blocks"][4]["accessory"]["options"] = build_program_options()
 
         # The headers must also include an authorization token for the views API
         final_header = self.default_header
@@ -132,6 +151,7 @@ class QuerySender:
             data=json.dumps({"trigger_id": trigger_id, "view": view_data}),
             headers=final_header,
         )
+        print(answer.json())
         if settings.config["TIMESHEET_DEBUG_MODE"]:
             write_query_debug_log(
                 answer,

@@ -35,6 +35,7 @@ def parse_modal_date(date_as_text: str):
         "is_afternoon": (day_period == "afternoon"),
     }
 
+
 class SlackAnalyzer:
     """Parser for Slack request"""
 

@@ -37,7 +37,7 @@ def launch_independent_async_handling_process(data):
                 file_path,
             ],
             stdout=sys.stdout,
-            stderr=sys.stdout
+            stderr=sys.stdout,
         )
     else:
         subprocess.Popen(

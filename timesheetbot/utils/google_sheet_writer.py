@@ -89,7 +89,7 @@ class GoogleSheetWriter:
             work_type__isnull=False,
         ).order_by("date"):
             # Let's skip data that are not entirely filled yet
-            if (len(one_data_chunk.descripiton) <= 2) and (
+            if (len(one_data_chunk.description) <= 2) and (
                 not one_data_chunk.is_holiday
             ):
                 continue
@@ -123,7 +123,7 @@ class GoogleSheetWriter:
                     sheet_range,
                     [
                         [
-                            one_data_chunk.descripiton,
+                            one_data_chunk.description,
                             one_data_chunk.work_type.spreadsheet_value,
                             (1 if one_data_chunk.is_cii else 0),
                             (1 if one_data_chunk.is_cir else 0),

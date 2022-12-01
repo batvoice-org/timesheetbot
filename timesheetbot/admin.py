@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, WorkType, TimeEntry, NotificationHour
+from .models import User, WorkType, TimeEntry, NotificationHour, Program
 
 
 @admin.register(User)
@@ -20,4 +20,9 @@ class TimeEntryAdmin(admin.ModelAdmin):
 
 @admin.register(NotificationHour)
 class NotificationHourAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
     pass

@@ -2,7 +2,7 @@ import datetime
 import pytz
 import timesheetbot.settings as settings
 
-from timesheetbot.models import User, TimeEntry, WorkType, NotificationHour
+from timesheetbot.models import User, TimeEntry, WorkType, Program, NotificationHour
 from timesheetbot.utils.query_sender import QuerySender
 
 
@@ -73,7 +73,7 @@ class UserAnalyzer:
             # A data point is not valid if
             # - no activity & not holiday
             # - no infos. on CIR, CII or work type [already filtered at query level]
-            if (len(one_data["description"]) <= 2):
+            if len(one_data["description"]) <= 2:
                 continue
 
             # But if all that is available, data can ineed be considered as available
@@ -104,8 +104,24 @@ class UserAnalyzer:
 
         # Form has been sent, hence we expect new infos. about activity description
         if change_type == "submit":
-            description = change_dict["description-block"]["description-action"]["value"]
-            time_entry.descripiton = description.strip()
+            description = change_dict["description-block"]["description-action"][
+                "value"
+            ]
+            time_entry.description = description.strip()
+
+            work_type_slack_value = change_dict["work-type-block"]["work-type-action"][
+                "selected_option"
+            ]["value"]
+            work_type = WorkType.objects.filter(
+                slack_value=work_type_slack_value
+            ).first()
+            time_entry.work_type = work_type
+
+            program_slack_value = change_dict["program-block"]["program-action"][
+                "selected_option"
+            ]["value"]
+            program = Program.objects.filter(slack_value=program_slack_value).first()
+            time_entry.program = program
 
         time_entry.save()
 
@@ -174,9 +190,14 @@ class UserAnalyzer:
         """When a new entry is complete, publish infos. to the associated public channel if needed"""
 
         # Summarizes info. and send through dedicated class
-        date = str(time_entry.date) + " morning" if time_entry.is_morning else " afternoon"
+        date = time_entry.date.strftime("%A")
+        if time_entry.is_morning:
+            date += ' morning'
+        else:
+            date += ' afternoon'
+        date += f' ({time_entry.date})'
 
-        text = f'*{date}* :\n- _Work type_ : {time_entry.work_type.slack_description}\n- _Program_ : {time_entry.program.slack_description}\n- _Description_ : {time_entry.description}'
+        text = f"*{date}* :\n- _Work type_ : {time_entry.work_type.slack_description}\n- _Program_ : {time_entry.program.slack_description}\n- _Description_ : {time_entry.description}"
 
         # Send to dedicated hook if exists/is valid
         if self.user.slack_republish_hook.startswith("http"):
