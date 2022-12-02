@@ -192,10 +192,10 @@ class UserAnalyzer:
         # Summarizes info. and send through dedicated class
         date = time_entry.date.strftime("%A")
         if time_entry.is_morning:
-            date += ' morning'
+            date += " morning"
         else:
-            date += ' afternoon'
-        date += f' ({time_entry.date})'
+            date += " afternoon"
+        date += f" ({time_entry.date})"
 
         text = f"*{date}* :\n- _Work type_ : {time_entry.work_type.slack_description}\n- _Program_ : {time_entry.program.slack_description}\n- _Description_ : {time_entry.description}"
 

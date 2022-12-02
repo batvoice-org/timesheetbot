@@ -20,4 +20,4 @@ class Command(BaseCommand):
             user_analyzer.update_user_analysis_mindate()
 
         # Writes new data in the google sheet
-        # GoogleSheetWriter().write_all_new_data()
+        GoogleSheetWriter().write_all_new_data()

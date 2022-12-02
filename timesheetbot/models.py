@@ -10,9 +10,7 @@ class User(models.Model):
         max_length=127, unique=False, blank=True, default=""
     )
     min_hours_between_notifications = models.IntegerField(default=4)
-    spreadsheet_row_first_day_of_week = models.IntegerField(
-        unique=True, blank=False, null=False
-    )
+    spreadsheet_top_left_row = models.IntegerField(unique=True, blank=False, null=False)
     look_for_data_starting_at = models.DateField()
     last_notified = models.DateTimeField()
     working_timezone = models.CharField(max_length=31, unique=False, default="CET")
@@ -34,7 +32,7 @@ class WorkType(models.Model):
 class Program(models.Model):
     slack_value = models.CharField(max_length=15, unique=True)
     slack_description = models.CharField(max_length=63, unique=True)
-    spreadsheet_cell_gap = models.PositiveSmallIntegerField()
+    spreadsheet_column_letter = models.CharField(max_length=2, unique=True)
     is_active = models.BooleanField(null=False, default=True)
 
     def __str__(self):

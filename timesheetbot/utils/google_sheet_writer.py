@@ -1,4 +1,5 @@
 import datetime
+import string
 import gspread
 import gspread_formatting as gf
 import timesheetbot.settings as settings
@@ -21,26 +22,38 @@ def is_vacation(sheet, cellref):
     return True
 
 
-def format_date_european_convention(entrydate):
-    """Given a date object, returns a "01-12-20"-formatted version"""
+def format_date_for_tab_name(entrydate: datetime.date):
+    return entrydate.strftime("%m-%d-%y")
 
-    base_repr = str(entrydate).split("-")
-
-    return base_repr[2] + "-" + base_repr[1] + "-" + base_repr[0][2:]
-
-
-def get_sheet_name_from_date(entrydate):
+def get_sheet_name_from_date(entrydate: datetime.date):
     """Given a date object, returns the name of the sheet that would be involved"""
 
     first_day_of_week = entrydate - datetime.timedelta(days=entrydate.weekday())
     last_day_of_week = first_day_of_week + datetime.timedelta(days=4)
 
     return (
-        format_date_european_convention(first_day_of_week)
+        format_date_for_tab_name(first_day_of_week)
         + " => "
-        + format_date_european_convention(last_day_of_week)
+        + format_date_for_tab_name(last_day_of_week)
     )
 
+
+def get_column_num_from_letter(col: string):
+    """Excel-style column name to number, e.g., A = 1, Z = 26, AA = 27, AAA = 703."""
+    num = 0
+    for c in col:
+        if c in string.ascii_letters:
+            num = num * 26 + (ord(c.upper()) - ord("A")) + 1
+    return num
+
+
+def get_column_name_from_number(n):
+    """Number to Excel-style column name, e.g., 1 = A, 26 = Z, 27 = AA, 703 = AAA."""
+    name = ''
+    while n > 0:
+        n, r = divmod (n - 1, 26)
+        name = chr(r + ord('A')) + name
+    return name
 
 class GoogleSheetWriter:
     """Class to write data in relevant Google spreadsheet"""
@@ -51,23 +64,33 @@ class GoogleSheetWriter:
         self.client = None
 
         # If a sheet is indeed expected to be configured
-        if (settings.config["GSPREAD_SHEET"] is not None) and (
-            settings.config["GSPREAD_SHEET"].startswith("https://docs.google.com")
-        ):
-
-            # Access the sheets, and store some defaults infos.
-            client = gspread.authorize(
-                ServiceAccountCredentials.from_json_keyfile_name(
-                    settings.config["GSPREAD_ACCESS_CONF_LOCATION"],
-                    [
-                        "https://spreadsheets.google.com/feeds",
-                        "https://www.googleapis.com/auth/drive",
-                    ],
-                )
+        if (
+            settings.config["GSPREAD_SHEET"] is None
+            or settings.config["GSPREAD_ACCESS_CONF_LOCATION"] is None
+            or not settings.config["GSPREAD_SHEET"].startswith(
+                "https://docs.google.com"
             )
-            self.client = client.open_by_url(settings.config["GSPREAD_SHEET"])
-            self.format_holiday = gf.cellFormat(backgroundColor=gf.color(0, 0, 0))
-            self.format_worked = gf.cellFormat(backgroundColor=gf.color(1, 1, 1))
+        ):
+            raise RuntimeError(
+                "GSPREAD_SHEET and GSPREAD_ACCESS_CONF_LOCATION environment variables are required"
+            )
+
+        # Access the sheets, and store some defaults infos.
+        client = gspread.authorize(
+            ServiceAccountCredentials.from_json_keyfile_name(
+                settings.config["GSPREAD_ACCESS_CONF_LOCATION"],
+                [
+                    "https://spreadsheets.google.com/feeds",
+                    "https://www.googleapis.com/auth/drive",
+                ],
+            )
+        )
+        self.client = client.open_by_url(settings.config["GSPREAD_SHEET"])
+
+        all_worksheet = self.client.worksheets()
+        self.template_worksheet = next(
+            w for w in all_worksheet if "template" in w.title.lower()
+        )
 
     def write_all_new_data(self):
         """Main entrypoint: writes all new data to the sheet"""
@@ -77,93 +100,83 @@ class GoogleSheetWriter:
             return
 
         # Arrays for which we may have to recompute the number of worked days
-        written_tabs = {}
         current_sheet_name = None
         current_sheet = None
 
         # Loop over all the new data
-        for one_data_chunk in TimeEntry.objects.filter(
+        time_entries_to_write = TimeEntry.objects.filter(
             has_been_written_in_gsheet=False,
-            is_cir__isnull=False,
-            is_cii__isnull=False,
+            program__isnull=False,
             work_type__isnull=False,
-        ).order_by("date"):
+        ).order_by("date")
+
+        for time_entry_to_write in time_entries_to_write:
             # Let's skip data that are not entirely filled yet
-            if (len(one_data_chunk.description) <= 2) and (
-                not one_data_chunk.is_holiday
+            if (len(time_entry_to_write.description) <= 2) and (
+                not time_entry_to_write.is_holiday
             ):
                 continue
 
             # Identify concerned sheet, select or create that sheet
-            sheet_name = get_sheet_name_from_date(one_data_chunk.date)
-            if not (sheet_name == current_sheet_name):
+            sheet_name = get_sheet_name_from_date(time_entry_to_write.date)
+            if sheet_name != current_sheet_name:
                 current_sheet_name = sheet_name
-                written_tabs[current_sheet_name] = set()
                 try:
                     current_sheet = self.client.worksheet(current_sheet_name)
                 except gspread.exceptions.WorksheetNotFound:
-                    current_sheet = self.create_new_tab_from_model(current_sheet_name)
+                    current_sheet = self.create_new_sheet_from_model(current_sheet_name)
 
             # Current user data start at a configured row, let's fill data
             # Also: let's keep in mind that we modified a sheet for a given user
-            user_start_row = one_data_chunk.user.spreadsheet_row_first_day_of_week
-            written_tabs[current_sheet_name].add(user_start_row)
-            current_row = user_start_row + one_data_chunk.date.weekday()
-            if one_data_chunk.is_morning:
-                sheet_range = "C" + str(current_row) + ":F" + str(current_row)
-            else:
-                sheet_range = "G" + str(current_row) + ":J" + str(current_row)
-            if one_data_chunk.is_holiday:
-                current_sheet.update(sheet_range, [["", "", "", ""]])
-                gf.format_cell_ranges(
-                    current_sheet, [(sheet_range, self.format_holiday)]
-                )
-            else:
-                current_sheet.update(
-                    sheet_range,
-                    [
-                        [
-                            one_data_chunk.description,
-                            one_data_chunk.work_type.spreadsheet_value,
-                            (1 if one_data_chunk.is_cii else 0),
-                            (1 if one_data_chunk.is_cir else 0),
-                        ]
-                    ],
-                )
-                gf.format_cell_ranges(
-                    current_sheet, [(sheet_range, self.format_worked)]
-                )
+            user_start_row = time_entry_to_write.user.spreadsheet_top_left_row
+            current_row = user_start_row + 1 + time_entry_to_write.date.weekday() * 2
+
+            if time_entry_to_write.is_afternoon:
+                current_row += 1
+
+            program_first_column_num = get_column_num_from_letter(
+                settings.config["SPREADSHEET_PROGRAM_FIRST_COLUMN"]
+            )
+            program_latest_column_num = get_column_num_from_letter(
+                settings.config["SPREADSHEET_PROGRAM_LATEST_COLUMN"]
+            )
+            program_column_num = get_column_num_from_letter(
+                time_entry_to_write.program.spreadsheet_column_letter
+            )
+
+            sheet_range_start_column_name = get_column_name_from_number(
+                program_first_column_num - 2
+            )
+
+            sheet_range = f'{sheet_range_start_column_name}{current_row}:{settings.config["SPREADSHEET_PROGRAM_LATEST_COLUMN"]}{current_row}'
+
+            values = [
+                [
+                    time_entry_to_write.description,
+                    time_entry_to_write.work_type.spreadsheet_value,
+                ]
+            ]
+
+            for i in range(program_first_column_num, program_latest_column_num):
+                if i == program_column_num:
+                    values[0].append(1)
+                else:
+                    values[0].append("")
+
+            current_sheet.update(
+                sheet_range,
+                values,
+            )
 
             # For performance/logic issues, we memorize that data have already been written
-            one_data_chunk.has_been_written_in_gsheet = True
-            one_data_chunk.save()
+            time_entry_to_write.has_been_written_in_gsheet = True
+            time_entry_to_write.save()
 
-        # When data have been written, we may have to recompute the per-week worked/holidays counts
-        self.update_count_worked_days(written_tabs)
-
-    def update_count_worked_days(self, written_tabs):
-        """Given a list of modified places, recompute/checks the number of worked days for those places"""
-
-        # Loop over modified sheets, modified users
-        for one_sheet_name in written_tabs:
-            current_sheet = self.client.worksheet(one_sheet_name)
-            for one_user_row in written_tabs[one_sheet_name]:
-                # For a given week-user tab: number of worked half-days is 10 - found_holidays_in_tab
-                count_worked_half_days = 10
-                for current_row in range(one_user_row, one_user_row + 5):
-                    if is_vacation(current_sheet, "C" + str(current_row)):
-                        count_worked_half_days -= 1
-                    if is_vacation(current_sheet, "G" + str(current_row)):
-                        count_worked_half_days -= 1
-                current_sheet.update(
-                    "F" + str(one_user_row + 6), float(count_worked_half_days) / 2
-                )
-
-    def create_new_tab_from_model(self, desti_name):
+    def create_new_sheet_from_model(self, new_sheet_name):
         """When a needed sheet does not exist: duplicates a template at the last position to create that sheet"""
 
         return self.client.duplicate_sheet(
-            self.client.worksheet("TEMPLATE").id,
-            new_sheet_name=desti_name,
+            self.template_worksheet.id,
+            new_sheet_name=new_sheet_name,
             insert_sheet_index=len(self.client.worksheets()),
         )

@@ -15,6 +15,18 @@
       "envFile": "${workspaceFolder}/.env",
       "django": true,
       "justMyCode": true
+    },
+    {
+      "name": "Python: Perform hourly tasks",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/timesheetbot/manage.py",
+      "args": [
+        "perform_hourly_tasks"
+      ],
+      "envFile": "${workspaceFolder}/.env",
+      "django": true,
+      "justMyCode": true
     }
   ]
 }
