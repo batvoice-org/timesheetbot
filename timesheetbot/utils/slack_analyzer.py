@@ -26,7 +26,6 @@ def parse_modal_date(date_as_text: str):
     else:
         raise ValueError("No date found in the text.")
 
-    day_period = date_as_text.split(",")[1].strip()
     date = datetime.date(year, month, day)
 
     return {

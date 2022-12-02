@@ -151,7 +151,6 @@ class QuerySender:
             data=json.dumps({"trigger_id": trigger_id, "view": view_data}),
             headers=final_header,
         )
-        print(answer.json())
         if settings.config["TIMESHEET_DEBUG_MODE"]:
             write_query_debug_log(
                 answer,
