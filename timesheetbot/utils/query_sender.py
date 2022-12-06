@@ -127,12 +127,11 @@ class QuerySender:
         )
 
         # Finally post the request
-        answer = requests.post(
+        requests.post(
             settings.config["SLACK_VIEW_API_URL"],
             data=json.dumps({"trigger_id": trigger_id, "view": view_data}),
             headers=final_header,
         )
-        logger.
 
     def send_simple_message(self, message, hook_url=None, user_slack_id=None):
         """Posting a simple/non-formatted message to a given channel"""
