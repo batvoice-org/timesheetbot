@@ -1,5 +1,5 @@
 ingress:
-  host:
+  host: timesheet.example.com
 
 env:
   DJANGO_SECURITY_KEY:
@@ -12,4 +12,4 @@ env:
   TIMESHEET_DEBUG_MODE: false
 
 cronjob:
-  schedule:
+  schedule: 11 * * * *

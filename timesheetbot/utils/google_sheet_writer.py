@@ -128,7 +128,7 @@ class GoogleSheetWriter:
 
             # Current user data start at a configured row, let's fill data
             # Also: let's keep in mind that we modified a sheet for a given user
-            user_start_row = time_entry_to_write.user.spreadsheet_top_left_row
+            user_start_row = time_entry_to_write.user.spreadsheet_top_row
             current_row = user_start_row + 1 + time_entry_to_write.date.weekday() * 2
 
             if time_entry_to_write.is_afternoon:

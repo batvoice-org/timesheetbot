@@ -3,20 +3,19 @@ from django.db import models
 
 class User(models.Model):
     first_name = models.CharField(max_length=127, unique=True)
-    slack_username = models.CharField(max_length=255, unique=True)
     slack_userid = models.CharField(max_length=15, unique=True)
     do_send_copy_of_data = models.BooleanField(null=False, default=True)
     slack_republish_hook = models.CharField(
         max_length=127, unique=False, blank=True, default=""
     )
     min_hours_between_notifications = models.IntegerField(default=4)
-    spreadsheet_top_left_row = models.IntegerField(unique=True, blank=False, null=False)
+    spreadsheet_top_row = models.IntegerField(unique=True, blank=False, null=False)
     look_for_data_starting_at = models.DateField()
     last_notified = models.DateTimeField()
     working_timezone = models.CharField(max_length=31, unique=False, default="CET")
 
     def __str__(self):
-        return "<User: {}>".format(self.slack_username)
+        return "<User: {}>".format(self.first_name)
 
 
 class WorkType(models.Model):

@@ -53,6 +53,5 @@ spec:
             secret:
               defaultMode: 292
               secretName: timesheetbot
-  schedule: 11 * * * *
+  schedule: {{ .Values.cronjob.schedule }}
   successfulJobsHistoryLimit: 1
-  suspend: true
