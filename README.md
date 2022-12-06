@@ -4,9 +4,41 @@ Slack agent to prompt users for timesheets / automatically fill CIR-CII sheets
 
 ## Requirements
 
-- Have admin rights to a Slack App
-- Have a GCP projet configured
-  - Create a service account to edit a GSheet programatically
+### Slack application
+
+Have admin rights to a Slack App
+
+### Have a GCP projet configured
+
+Start by creating a service account at the Google Developer Console:
+
+1. Open https://console.developers.google.com/apis/library
+
+![Console homepage](documentation/images/console-homepage.png)
+
+2. Enable it and create a project:
+
+![Enable sheets](documentation/images/enable-sheets.png)
+
+3. At Credentials, create a service account:
+
+![Create service account](documentation/images/crate-service-account.png)
+
+4. Keep defaults at the next form and click Create. Save the resulting private key file in a directory where your application can read it:
+
+![Fill out form](documentation/images/fill-out-form.png)
+
+5. Next, click on “Manage Service accounts”:
+
+![Manage service sccounts](documentation/images/manage-sa.png)
+
+6. Copy the email address of your service account:
+
+![Copy service account email](documentation/images/copy-email.png)
+
+7. Grant permission to the service account to the spreadsheet:
+
+![Share with service account](documentation/images/share-with-sa.png)
 
 ## Development
 
