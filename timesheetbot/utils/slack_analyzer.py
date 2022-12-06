@@ -5,7 +5,6 @@ import re
 from timesheetbot.models import User
 from timesheetbot.utils.user_analyzer import UserAnalyzer
 
-
 def parse_modal_date(date_as_text: str):
     """Parses date as displayed in modals to get a datetime object + morning/afternoon info."""
 

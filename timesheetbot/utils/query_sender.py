@@ -2,28 +2,9 @@ import datetime
 import json
 import os
 import requests
-import tempfile
-import time
 import timesheetbot.settings as settings
 
 from timesheetbot.models import TimeEntry, WorkType, Program
-
-
-def write_query_debug_log(answer, url, data, headers):
-    """Simple utility to keep track of requests & answers"""
-
-    file_handler, file_path = tempfile.mkstemp(
-        suffix=".debug", prefix="query_log_" + ("%.2f" % (time.time()))
-    )
-    os.write(file_handler, answer.content)
-    os.write(
-        file_handler,
-        "\n\n=======\n\n".join(["", url, json.dumps(data), json.dumps(headers)]).encode(
-            "utf-8"
-        ),
-    )
-    os.close(file_handler)
-
 
 def template_insert(entrytext, dict_replacement):
     """Simple utility to replace values in text according to replacements dict"""
@@ -151,27 +132,18 @@ class QuerySender:
             data=json.dumps({"trigger_id": trigger_id, "view": view_data}),
             headers=final_header,
         )
-        if settings.config["TIMESHEET_DEBUG_MODE"]:
-            write_query_debug_log(
-                answer,
-                settings.config["SLACK_VIEW_API_URL"],
-                {"trigger_id": trigger_id, "view": view_data},
-                final_header,
-            )
+        logger.
 
     def send_simple_message(self, message, hook_url=None, user_slack_id=None):
         """Posting a simple/non-formatted message to a given channel"""
 
         if hook_url is not None:
-            answer = requests.post(
+            requests.post(
                 hook_url,
                 data=json.dumps({"text": message}),
                 headers=self.default_header,
             )
-            if settings.config["TIMESHEET_DEBUG_MODE"]:
-                write_query_debug_log(
-                    answer, hook_url, {"text": message}, self.default_header
-                )
+
         elif user_slack_id is not None:
             # The headers must also include an authorization token for the chats API
             final_header = self.default_header
@@ -181,18 +153,11 @@ class QuerySender:
 
             message_formatted = {"channel": user_slack_id, "text": message}
 
-            answer = requests.post(
+            requests.post(
                 settings.config["SLACK_CHAT_API_URL"],
                 data=json.dumps(message_formatted),
                 headers=final_header,
             )
-            if settings.config["TIMESHEET_DEBUG_MODE"]:
-                write_query_debug_log(
-                    answer,
-                    settings.config["SLACK_CHAT_API_URL"],
-                    message_formatted,
-                    final_header,
-                )
 
     def prepare_and_send_notification(self, user_object, count_missing_entries):
         """Posting a notification asking to fill missing data to user private channel"""
@@ -223,15 +188,8 @@ class QuerySender:
         )
 
         # And post
-        answer = requests.post(
+        requests.post(
             settings.config["SLACK_CHAT_API_URL"],
             data=json.dumps(notification),
             headers=final_header,
         )
-        if settings.config["TIMESHEET_DEBUG_MODE"]:
-            write_query_debug_log(
-                answer,
-                settings.config["SLACK_CHAT_API_URL"],
-                notification,
-                final_header,
-            )

@@ -21,36 +21,18 @@ def launch_independent_async_handling_process(data):
     os.write(file_handler, json.dumps(data).encode("utf-8"))
     os.close(file_handler)
 
-    if settings.config["TIMESHEET_DEBUG_MODE"]:
-        sys_descr_stdout, _ = tempfile.mkstemp(
-            suffix=".debug", prefix="exec_log_stdout_" + ("%.2f" % (time.time()))
-        )
-        sys_descr_stderr, _ = tempfile.mkstemp(
-            suffix=".debug", prefix="exec_log_stderr_" + ("%.2f" % (time.time()))
-        )
-        subprocess.Popen(
-            [
-                sys.executable,
-                os.path.join(settings.BASE_DIR, "manage.py"),
-                "analyze_slack_request",
-                "--request_file",
-                file_path,
-            ],
-            stdout=sys.stdout,
-            stderr=sys.stdout,
-        )
-    else:
-        subprocess.Popen(
-            [
-                sys.executable,
-                os.path.join(settings.BASE_DIR, "manage.py"),
-                "analyze_slack_request",
-                "--request_file",
-                file_path,
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+    subprocess.Popen(
+        [
+            sys.executable,
+            os.path.join(settings.BASE_DIR, "manage.py"),
+            "analyze_slack_request",
+            "--request_file",
+            file_path,
+        ],
+        stdout=sys.stdout,
+        stderr=sys.stdout,
+    )
+
 
 
 @require_POST

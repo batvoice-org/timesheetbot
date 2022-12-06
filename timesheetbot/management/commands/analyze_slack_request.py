@@ -22,5 +22,4 @@ class Command(BaseCommand):
         try:
             SlackAnalyzer(options["request_file"]).analyze_and_respond()
         finally:
-            if not settings.config["TIMESHEET_DEBUG_MODE"]:
-                os.remove(options["request_file"])
+            os.remove(options["request_file"])

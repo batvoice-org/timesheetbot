@@ -9,7 +9,6 @@ env:
   SLACK_BEARER_TOKEN: 
   SLACK_SIGNING_SECRET: 
   DJANGO_DEBUG_MODE: false
-  TIMESHEET_DEBUG_MODE: false
 
 cronjob:
   schedule: 11 * * * *

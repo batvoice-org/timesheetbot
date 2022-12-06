@@ -25,6 +25,8 @@ setuptools.setup(
         'oauth2client >= 4',
         'gspread-formatting >= 1',
         'gunicorn >= 20',
-        'pytz >= 2022'
+        'pytz >= 2022',
+        'json_log_formatter >= 0.5',
+        'coloredlogs>=15.0'
     ]
 )

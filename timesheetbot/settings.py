@@ -32,7 +32,13 @@ for config_key in config:
 SECRET_KEY = config["DJANGO_SECURITY_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config["DJANGO_DEBUG_MODE"]
+def compute_django_debug_from_env_var():
+    debug = os.environ.get('DJANGO_DEBUG')
+    if debug and debug.lower() == 'true':
+        return True
+    return False
+
+DEBUG = compute_django_debug_from_env_var()
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -129,3 +135,71 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "class": "coloredlogs.ColoredFormatter",
+            "format": "[{levelname}:{asctime:8s}.{msecs:03.0f}] {message} [{filename}:{lineno:d},{funcName}()]",
+            "style": "{",
+        },
+        "json": {
+            "class": "timesheetbot.log.JSONFormatter",
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+    },
+    "handlers": {
+        "console_dev": {
+            "level": "DEBUG",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+        "console_prod": {
+            "level": "INFO",
+            "filters": ["require_debug_false"],
+            "class": "logging.StreamHandler",
+            "formatter": "json",
+        },
+    },
+    "loggers": {
+        "": {
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+        "django": {
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+        "botocore": {
+            "level": os.getenv("BOTO3_LOG_LEVEL", "ERROR"),
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+        "boto3": {
+            "level": os.getenv("BOTO3_LOG_LEVEL", "ERROR"),
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+        "s3transfer": {
+            "level": os.getenv("BOTO3_LOG_LEVEL", "ERROR"),
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console_dev", "console_prod"],
+            "propagate": False,
+        },
+    },
+}
