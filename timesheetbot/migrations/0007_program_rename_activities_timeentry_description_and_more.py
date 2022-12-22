@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                 ('meeting_other', 'Meeting - other', 'Meeting - other', True),
                 ('development_new_feature', 'Development - new feature', 'Development - new feature', True),
                 ('development_bug_fixes', 'Development - bug fixes', 'Development - bug fixes', True),
-                ('development_backend', 'Development - backend', 'Development - backend', True),
+                ('development_devops', 'Development - devops', 'Development - devops', True),
                 ('development_datascience', 'Development - datascience', 'Development - datascience', True),
                 ('development_other', 'Development - other', 'Development - other', True),
                 ('study_r&dStudy - R&D', 'Study - R&D', '', True),
