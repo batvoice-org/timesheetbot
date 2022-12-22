@@ -17,7 +17,7 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "How to fill out this form ?"
+				"text": ":question: How to fill out this form :question:"
 			},
 			"accessory": {
 				"type": "button",
@@ -25,8 +25,12 @@
 					"type": "plain_text",
 					"text": "Read guide"
 				},
+				"style": "primary",
 				"url": "https://www.notion.so/batvoice/How-to-fill-up-TimesheetBotV2-form-c2c98a9885c54880915d0167ed8610bd"
 			}
+		},
+		{
+			"type": "divider"
 		},
 		{
 			"type": "input",

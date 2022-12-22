@@ -110,15 +110,15 @@ class QuerySender:
         ).first()
 
         # Fill the template
-        view_data["blocks"][0]["element"]["initial_value"] = (
+        view_data["blocks"][2]["element"]["initial_value"] = (
             user_data_object.description if user_data_object is not None else ""
         )
-        view_data["blocks"][0]["label"]["text"] = template_insert(
-            view_data["blocks"][0]["label"]["text"],
+        view_data["blocks"][2]["label"]["text"] = template_insert(
+            view_data["blocks"][2]["label"]["text"],
             {"time_period": format_date(date_repr)},
         )
-        view_data["blocks"][2]["element"]["options"] = build_work_type_options()
-        view_data["blocks"][4]["accessory"]["options"] = build_program_options()
+        view_data["blocks"][4]["element"]["options"] = build_work_type_options()
+        view_data["blocks"][6]["accessory"]["options"] = build_program_options()
 
         # The headers must also include an authorization token for the views API
         final_header = self.default_header
