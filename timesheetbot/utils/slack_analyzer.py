@@ -81,12 +81,10 @@ class SlackAnalyzer:
 
         # Parse the date and select relevant query portion
         data_concerned_date = parse_modal_date(
-            self.request_data["view"]["blocks"][0]["label"]["text"]
+            self.request_data["view"]["blocks"][2]["label"]["text"]
         )
         if action_type == "submit":
             changes = self.request_data["view"]["state"]["values"]
-        elif action_type == "select":
-            changes = self.request_data["actions"][0]
 
         # Then delegate to the user class
         self.user_analyzer.register_changes(data_concerned_date, action_type, changes)
