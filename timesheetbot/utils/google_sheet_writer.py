@@ -8,7 +8,7 @@ import logging
 from timesheetbot.models import TimeEntry
 from oauth2client.service_account import ServiceAccountCredentials
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def is_vacation(sheet, cellref):
