@@ -3,9 +3,12 @@ import string
 import gspread
 import gspread_formatting as gf
 import timesheetbot.settings as settings
+import logging
 
 from timesheetbot.models import TimeEntry
 from oauth2client.service_account import ServiceAccountCredentials
+
+logger = logging.get_logger(__name__)
 
 
 def is_vacation(sheet, cellref):
@@ -112,12 +115,6 @@ class GoogleSheetWriter:
         ).order_by("date")
 
         for time_entry_to_write in time_entries_to_write:
-            # Let's skip data that are not entirely filled yet
-            if (len(time_entry_to_write.description) <= 2) and (
-                not time_entry_to_write.is_holiday
-            ):
-                continue
-
             # Identify concerned sheet, select or create that sheet
             sheet_name = get_sheet_name_from_date(time_entry_to_write.date)
             if sheet_name != current_sheet_name:
@@ -154,7 +151,9 @@ class GoogleSheetWriter:
             values = [
                 [
                     time_entry_to_write.description,
-                    time_entry_to_write.work_type.spreadsheet_value,
+                    time_entry_to_write.work_type.spreadsheet_value
+                    if time_entry_to_write.work_type is not None
+                    else "",
                 ]
             ]
 
@@ -172,6 +171,9 @@ class GoogleSheetWriter:
             # For performance/logic issues, we memorize that data have already been written
             time_entry_to_write.has_been_written_in_gsheet = True
             time_entry_to_write.save()
+            logger.info(
+                f"Timesheet entry {time_entry_to_write.id} has been successfully added to GSheet"
+            )
 
     def create_new_sheet_from_model(self, new_sheet_name):
         """When a needed sheet does not exist: duplicates a template at the last position to create that sheet"""
