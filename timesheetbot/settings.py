@@ -31,12 +31,14 @@ for config_key in config:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config["DJANGO_SECURITY_KEY"]
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 def compute_django_debug_from_env_var():
-    debug = os.environ.get('DJANGO_DEBUG')
-    if debug and debug.lower() == 'true':
+    debug = os.environ.get("DJANGO_DEBUG")
+    if debug and debug.lower() == "true":
         return True
     return False
+
 
 DEBUG = compute_django_debug_from_env_var()
 

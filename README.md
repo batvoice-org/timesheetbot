@@ -59,9 +59,7 @@ source env/bin/activate
 - Install dependencies
 
 ```
-python setup.py install
-pip install -r requirements.txt
-pip install -e .
+pip install -r requirements-dev.txt
 ```
 
 - Create docker external volume
@@ -90,6 +88,12 @@ python timesheetbot/manage.py runserver
 
 Development server will be reachable at http://127.0.0.1:8000/
 
+### Update dependencies 
+
+```bash
+make update
+```
+
 ## Build / deploy
 
 Login to your docker repository.
@@ -116,4 +120,4 @@ helm upgrade \
 
 ## How to add / setup a new employee ?
 
-TODO
+Cf Notion

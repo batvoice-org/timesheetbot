@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("timesheetbot", "0006_user_working_timezone"),
     ]
@@ -25,7 +24,10 @@ class Migration(migrations.Migration):
                 ),
                 ("slack_value", models.CharField(max_length=15, unique=True)),
                 ("slack_description", models.CharField(max_length=63, unique=True)),
-                ("spreadsheet_column_letter", models.CharField(max_length=2, unique=True)),
+                (
+                    "spreadsheet_column_letter",
+                    models.CharField(max_length=2, unique=True),
+                ),
                 ("is_active", models.BooleanField(default=True)),
             ],
         ),

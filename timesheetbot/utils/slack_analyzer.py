@@ -1,9 +1,13 @@
 import datetime
 import json
 import re
+import logging
 
 from timesheetbot.models import User
 from timesheetbot.utils.user_analyzer import UserAnalyzer
+
+logger = logging.getLogger(__name__)
+
 
 def parse_modal_date(date_as_text: str):
     """Parses date as displayed in modals to get a datetime object + morning/afternoon info."""
@@ -58,7 +62,19 @@ class SlackAnalyzer:
         if self.request_data["type"] == "block_actions":
             self.handle_button_clicked()
         elif self.request_data["type"] == "view_submission":
-            self.handle_view_submission()
+            try:
+                self.handle_view_submission()
+            except:
+                logger.error(
+                    f"Error while handling submission for {self.user_analyzer.user.first_name}."
+                    + f"Incomming request body is {json.dumps(self.request_data)}"
+                )
+                self.user_analyzer.query_sender.send_simple_message(
+                    ":warning: Something went wrong while saving your time entry...\n"
+                    + "Please inform the administrator ASAP :pray:",
+                    self.user_analyzer.user.slack_userid,
+                )
+                raise
 
     def handle_view_submission(self):
         """Parsing a submission request"""

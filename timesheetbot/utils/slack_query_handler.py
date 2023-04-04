@@ -34,7 +34,6 @@ def launch_independent_async_handling_process(data):
     )
 
 
-
 @require_POST
 @csrf_exempt
 def handle_slack(request):

@@ -16,13 +16,20 @@ class UserAnalyzer:
 
     def launch_modals(self, trigger_id):
         """Create a new filling-data modal if data are missing"""
-
-        missing_data = self.find_missing_data()
-        if len(missing_data):
-            # Modal by default for the first missing date
-            self.query_sender.prepare_and_send_modal(
-                trigger_id, self.user.pk, sorted(missing_data)[0]
+        try:
+            missing_data = self.find_missing_data()
+            if len(missing_data):
+                # Modal by default for the first missing date
+                self.query_sender.prepare_and_send_modal(
+                    trigger_id, self.user.pk, sorted(missing_data)[0]
+                )
+        except:
+            self.query_sender.send_simple_message(
+                ":warning: Something went wrong while generating the modal...\n"
+                + "Please inform the administrator ASAP :pray:",
+                self.user.slack_userid,
             )
+            raise
 
     def find_missing_data(self):
         """Find out what entries must be filled"""
@@ -92,6 +99,7 @@ class UserAnalyzer:
             is_morning=date_object["is_morning"],
             is_afternoon=date_object["is_afternoon"],
         ).first()
+
         if time_entry is None:
             time_entry = TimeEntry(
                 user=self.user,
@@ -107,26 +115,46 @@ class UserAnalyzer:
             description = change_dict["description-block"]["description-action"][
                 "value"
             ]
+
+            if description is None:
+                description = ""
+
             time_entry.description = description.strip()
+            time_entry.save()
 
-            work_type_slack_value = change_dict["work-type-block"]["work-type-action"][
-                "selected_option"
-            ]["value"]
-            work_type = WorkType.objects.filter(
-                slack_value=work_type_slack_value
-            ).first()
+            work_type_selected_option = change_dict["work-type-block"][
+                "work-type-action"
+            ]["selected_option"]
+            work_type = None
+
+            if work_type_selected_option is not None:
+                work_type = WorkType.objects.filter(
+                    slack_value=work_type_selected_option["value"]
+                ).first()
+
             time_entry.work_type = work_type
+            time_entry.save()
 
-            program_slack_value = change_dict["program-block"]["program-action"][
+            program_selected_option = change_dict["program-block"]["program-action"][
                 "selected_option"
-            ]["value"]
-            program = Program.objects.filter(slack_value=program_slack_value).first()
+            ]
+
+            if program_selected_option is None:
+                self.query_sender.send_simple_message(
+                    ":warning: The _program_ field is mandatory to submit a timesheet entry. Please fill out the form again :pray:",
+                    self.user.slack_userid,
+                )
+                return
+
+            program = WorkType.objects.filter(
+                slack_value=program_selected_option["value"]
+            ).first()
+
             time_entry.program = program
 
         time_entry.save()
 
-        # We might publish that new piece of information in dedicated slack channel
-        self.user_republish_information(time_entry)
+        self.send_summary_to_user_as_dm(time_entry)
 
     def launch_notifications(self):
         """Launch notifications inviting user to fill the missing entries"""
@@ -186,7 +214,7 @@ class UserAnalyzer:
         )
         self.user.save()
 
-    def user_republish_information(self, time_entry: TimeEntry):
+    def send_summary_to_user_as_dm(self, time_entry: TimeEntry):
         """When a new entry is complete, publish infos. to the associated public channel if needed"""
 
         # Summarizes info. and send through dedicated class
@@ -197,16 +225,21 @@ class UserAnalyzer:
             date += " afternoon"
         date += f" ({time_entry.date})"
 
-        text = f"*{date}* :\n- _Work type_ : {time_entry.work_type.slack_description}\n- _Program_ : {time_entry.program.slack_description}\n- _Description_ : {time_entry.description}"
+        work_type = "None"
 
-        # Send to dedicated hook if exists/is valid
-        if self.user.slack_republish_hook.startswith("http"):
-            self.query_sender.send_simple_message(
-                text, hook_url=self.user.slack_republish_hook
-            )
+        if time_entry.work_type is not None:
+            work_type = time_entry.work_type.slack_description
 
-        # Send a copy to personal channel if so configured
-        if self.user.do_send_copy_of_data:
-            self.query_sender.send_simple_message(
-                text, user_slack_id=self.user.slack_userid
-            )
+        program = "None"
+
+        if time_entry.work_type is not None:
+            program = time_entry.program.slack_description
+
+        text = (
+            f"*{date}* :\n"
+            + f"- _Work type_ : {work_type}\n"
+            + f"- _Program_ : {program}\n"
+            + f"- _Description_ : {time_entry.description}"
+        )
+
+        self.query_sender.send_simple_message(text, self.user.slack_userid)

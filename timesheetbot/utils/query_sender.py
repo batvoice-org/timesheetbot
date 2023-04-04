@@ -3,8 +3,12 @@ import json
 import os
 import requests
 import timesheetbot.settings as settings
+import logging
 
 from timesheetbot.models import TimeEntry, WorkType, Program
+
+logger = logging.getLogger(__name__)
+
 
 def template_insert(entrytext, dict_replacement):
     """Simple utility to replace values in text according to replacements dict"""
@@ -101,7 +105,7 @@ class QuerySender:
             view_data = json.load(hr)
 
         # Retrieves the data for user/timeslot if it exists
-        user_data_object = TimeEntry.objects.filter(
+        maybe_timesheet_entry = TimeEntry.objects.filter(
             user=user_id,
             date=datetime.date(
                 *[int(part) for part in date_repr.split("_")[0].split("-")]
@@ -111,12 +115,24 @@ class QuerySender:
 
         # Fill the template
         view_data["blocks"][2]["element"]["initial_value"] = (
-            user_data_object.description if user_data_object is not None else ""
+            maybe_timesheet_entry.description
+            if maybe_timesheet_entry is not None
+            else ""
         )
         view_data["blocks"][2]["label"]["text"] = template_insert(
             view_data["blocks"][2]["label"]["text"],
             {"time_period": format_date(date_repr)},
         )
+        if maybe_timesheet_entry is not None:
+            maybe_work_type = maybe_timesheet_entry.work_type
+            if maybe_work_type is not None:
+                view_data["blocks"][4]["element"]["initial_option"] = {
+                    "text": {
+                        "type": "plain_text",
+                        "text": maybe_work_type.slack_description[:75],
+                    },
+                    "value": maybe_work_type.slack_value,
+                }
         view_data["blocks"][4]["element"]["options"] = build_work_type_options()
         view_data["blocks"][6]["accessory"]["options"] = build_program_options()
 
@@ -127,36 +143,32 @@ class QuerySender:
         )
 
         # Finally post the request
-        requests.post(
+        res = requests.post(
             settings.config["SLACK_VIEW_API_URL"],
             data=json.dumps({"trigger_id": trigger_id, "view": view_data}),
             headers=final_header,
-        )
+        ).json()
 
-    def send_simple_message(self, message, hook_url=None, user_slack_id=None):
+        if res["ok"] is not True:
+            logger.error(res)
+            raise Exception("Error while sending modal.")
+
+    def send_simple_message(self, message, slack_user_id):
         """Posting a simple/non-formatted message to a given channel"""
 
-        if hook_url is not None:
-            requests.post(
-                hook_url,
-                data=json.dumps({"text": message}),
-                headers=self.default_header,
-            )
+        # The headers must also include an authorization token for the chats API
+        final_header = self.default_header
+        final_header["Authorization"] = (
+            "Bearer " + settings.config["SLACK_BEARER_TOKEN"]
+        )
 
-        elif user_slack_id is not None:
-            # The headers must also include an authorization token for the chats API
-            final_header = self.default_header
-            final_header["Authorization"] = (
-                "Bearer " + settings.config["SLACK_BEARER_TOKEN"]
-            )
+        message_formatted = {"channel": slack_user_id, "text": message}
 
-            message_formatted = {"channel": user_slack_id, "text": message}
-
-            requests.post(
-                settings.config["SLACK_CHAT_API_URL"],
-                data=json.dumps(message_formatted),
-                headers=final_header,
-            )
+        requests.post(
+            settings.config["SLACK_CHAT_API_URL"],
+            data=json.dumps(message_formatted),
+            headers=final_header,
+        )
 
     def prepare_and_send_notification(self, user_object, count_missing_entries):
         """Posting a notification asking to fill missing data to user private channel"""

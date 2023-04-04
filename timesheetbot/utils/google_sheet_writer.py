@@ -25,6 +25,7 @@ def is_vacation(sheet, cellref):
 def format_date_for_tab_name(entrydate: datetime.date):
     return entrydate.strftime("%m-%d-%y")
 
+
 def get_sheet_name_from_date(entrydate: datetime.date):
     """Given a date object, returns the name of the sheet that would be involved"""
 
@@ -49,11 +50,12 @@ def get_column_num_from_letter(col: string):
 
 def get_column_name_from_number(n):
     """Number to Excel-style column name, e.g., 1 = A, 26 = Z, 27 = AA, 703 = AAA."""
-    name = ''
+    name = ""
     while n > 0:
-        n, r = divmod (n - 1, 26)
-        name = chr(r + ord('A')) + name
+        n, r = divmod(n - 1, 26)
+        name = chr(r + ord("A")) + name
     return name
+
 
 class GoogleSheetWriter:
     """Class to write data in relevant Google spreadsheet"""
@@ -107,7 +109,6 @@ class GoogleSheetWriter:
         time_entries_to_write = TimeEntry.objects.filter(
             has_been_written_in_gsheet=False,
             program__isnull=False,
-            work_type__isnull=False,
         ).order_by("date")
 
         for time_entry_to_write in time_entries_to_write:

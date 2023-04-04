@@ -46,7 +46,8 @@
 				"type": "plain_text",
 				"text": "{@time_period@}, I mainly did:",
 				"emoji": true
-			}
+			},
+			"optional": true
 		},
 		{
 			"type": "divider"
@@ -69,7 +70,8 @@
 				"type": "plain_text",
 				"text": "What was the work type ?",
 				"emoji": true
-			}
+			},
+			"optional": true
 		},
 		{
 			"type": "divider"
