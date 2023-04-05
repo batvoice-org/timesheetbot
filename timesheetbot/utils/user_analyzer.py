@@ -146,9 +146,18 @@ class UserAnalyzer:
                 )
                 return
 
-            program = WorkType.objects.filter(
+            program = Program.objects.filter(
                 slack_value=program_selected_option["value"]
             ).first()
+
+            if program is None:
+                self.query_sender.send_simple_message(
+                    f":warning: The _program_ you have selected "
+                    + "({program_selected_option['text']['text']}) has not been found in the database.\n"
+                    + "Please inform the administrator ASAP :pray:",
+                    self.user.slack_userid,
+                )
+                return
 
             time_entry.program = program
 
