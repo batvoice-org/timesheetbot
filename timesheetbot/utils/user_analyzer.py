@@ -75,7 +75,6 @@ class UserAnalyzer:
             user=self.user.pk,
             date__gte=self.user.look_for_data_starting_at,
             program__isnull=False,
-            work_type__isnull=False,
         ).values("description", "date", "is_morning"):
             # A data point is not valid if
             # - no activity & not holiday

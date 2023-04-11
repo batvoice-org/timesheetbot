@@ -81,7 +81,7 @@
 			"block_id": "program-block",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*Can it be part of the following programs ?*"
+				"text": "*What is the program ?* _mandatory_"
 			},
 			"accessory": {
 				"type": "radio_buttons",
