@@ -45,7 +45,7 @@ DEBUG = compute_django_debug_from_env_var()
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    ".ngrok.io",
+    ".ngrok-free.app",
     config["HOSTNAME"],
 ]
 
