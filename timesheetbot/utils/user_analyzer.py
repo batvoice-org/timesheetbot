@@ -70,19 +70,11 @@ class UserAnalyzer:
         """Returns all already filled timeslots for user"""
 
         available_data = set([])
-        # We study data only starting from the reference data, for the current user
         for one_data in TimeEntry.objects.filter(
             user=self.user.pk,
             date__gte=self.user.look_for_data_starting_at,
             program__isnull=False,
         ).values("description", "date", "is_morning"):
-            # A data point is not valid if
-            # - no activity & not holiday
-            # - no infos. on CIR, CII or work type [already filtered at query level]
-            if len(one_data["description"]) <= 2:
-                continue
-
-            # But if all that is available, data can ineed be considered as available
             postfix_day_period = "_0" if one_data["is_morning"] else "_1"
             available_data.add(str(one_data["date"]) + postfix_day_period)
 
